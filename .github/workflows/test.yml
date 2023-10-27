@@ -1,0 +1,38 @@
+# workflow 名称，在 github 显示
+name: Test Workflow
+# workflow 触发条件
+# 单个事件，中括号可省略
+# 默认分支
+# on: [push]
+
+# 详细
+on:
+  push:
+    branches:
+      - main
+      - master
+#  pull_request:
+#    branches:
+#      - master
+
+# 一个 workflow 可以由多个 jobs 组成
+jobs:
+  build:
+    # 运行在最新版的 ubuntu 镜像
+    runs-on: ubuntu-latest
+    # 步骤
+    steps:
+      # 使用现成的 action，将代码签出
+      - uses: actions/checkout@v3
+      # 命名的 uses
+      - name: set up jdk
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: build with maven
+        run: mvn -B test --file pom.xml
+      # 使用单元测试流程，并且输出报告
+      - uses: ashley-taylor/junit-report-annotations-action@master
+        with:
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+        if: always()
